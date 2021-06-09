@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{1E2877F0-6255-4597-B217-5DA67416AE43}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MTSR</RootNamespace>
+    <AssemblyName>MTSR</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <PlatformTarget>x64</PlatformTarget>
+    <OutputPath>..\bin\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <PlatformTarget>x64</PlatformTarget>
+    <OutputPath>..\bin\</OutputPath>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="DynamicInterop">
+      <HintPath>lib\DynamicInterop.dll</HintPath>
+    </Reference>
+    <Reference Include="OSIsoft.AFSDK, Version=4.0.0.0, Culture=neutral, PublicKeyToken=6238be57836698e6, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Program Files (x86)\PIPC\AF\PublicAssemblies\4.0\OSIsoft.AFSDK.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="RDotNet">
+      <HintPath>lib\RDotNet.dll</HintPath>
+    </Reference>
+    <Reference Include="RDotNet.NativeLibrary">
+      <HintPath>lib\RDotNet.NativeLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Common\Common.cs" />
+    <Compile Include="R\R.cs" />
+    <Compile Include="Engine\DTPSA.cs" />
+    <Compile Include="SQL\SqlTSDBWriter.cs" />
+    <Compile Include="SQL\SqlTSDB.cs" />
+    <Compile Include="TestApp.cs" />
+    <Compile Include="Test\InputChar.cs" />
+    <Compile Include="Test\InputResolutions.cs" />
+    <Compile Include="Test\InputIndex.cs" />
+    <Compile Include="Test\InputDates.cs" />
+    <Compile Include="Test\OutputExtensions.cs" />
+    <Compile Include="Test\QualityTest.cs" />
+    <Compile Include="Test\InputReader.cs" />
+    <Compile Include="Test\InputCount.cs" />
+    <Compile Include="Test\InputDirectory.cs" />
+    <Compile Include="Test\InputEnum.cs" />
+    <Compile Include="Test\InputTime.cs" />
+    <Compile Include="Engine\HMTSR.cs" />
+    <Compile Include="Engine\ITSDBWriter.cs" />
+    <Compile Include="Engine\ITSDB.cs" />
+    <Compile Include="Common\LinearFunction.cs" />
+    <Compile Include="Engine\MTSMS.cs" />
+    <Compile Include="Engine\IMTSR.cs" />
+    <Compile Include="Test\CSVStream.cs" />
+    <Compile Include="PI\PIConnection.cs" />
+    <Compile Include="PI\PIExtensions.cs" />
+    <Compile Include="PI\PITSDB.cs" />
+    <Compile Include="PI\PITSDBWriter.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Engine\PLFPSA.cs" />
+    <Compile Include="Common\Resolution.cs" />
+    <Compile Include="Common\TimeInterval.cs" />
+    <Compile Include="Common\TimeSeries.cs" />
+    <Compile Include="Common\TimeSeriesTuple.cs" />
+    <Compile Include="SQL\SqlDB.cs" />
+    <Compile Include="SQL\SqlDBConnection.cs" />
+    <Compile Include="SQL\SqlDBExtensions.cs" />
+    <Compile Include="Test\QualityTestDB.cs" />
+    <Compile Include="Test\Test.cs" />
+    <Compile Include="Engine\Base.cs" />
+    <Compile Include="Test\SpeedTest.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\SqlDB.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="PISDK">
+      <Guid>{0EE075CE-8C31-11D1-BD73-0060B0290178}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>1</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="PISDKCommon">
+      <Guid>{76A44786-EBC8-11D3-BDC5-00C04F779EB2}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="PITimeServer">
+      <Guid>{CB14968B-C3CA-11D3-BDBF-00C04F779EB2}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\SqlTSDB.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Test\QualityTestDB.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="R\Source.R" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
