@@ -4,7 +4,20 @@
 #' @param order: The order of the layer in the composition.
 k_Name = function(base, part, order="") return(paste(base, "_", part, order, sep = ""))
 
-#' k_Select: keras-based access to tensor data
+#' k_Shape: keras-based access to tensor shape.
+#' @param t: Tensor data.21
+#' @return Size of each dimension in a vector.
+k_Shape = function(t) {
+    shape = c()
+    dims = k_int_shape(t)
+    for(i in 1:Count(dims)) {
+        shape = c(shape, Limit(sum(dims[[i]]), min=1))
+    }
+    
+    return (shape)
+}
+
+#' k_Select: keras-based access to tensor data.
 #' @param t: Tensor data.
 #' @param d1: Dimension 1.
 #' @param d2: Dimension 2.
@@ -41,10 +54,10 @@ k_GME = function(y_true, y_pred) {
         return(-k_log(k_sum(k_exp(a-b-c))))
     }
 
-    shape = k_int_shape(y_pred)
-    samples = 1:Limit(sum(shape[[1]]), min=1)
-    steps = 1:Limit(sum(shape[[2]]), min=1)
-    m = Limit(sum(shape[[3]]), min=1)/3
+    shape = k_Shape(y_pred)
+    samples = 1:shape[1]
+    steps = 1:shape[2]
+    m = shape[3]/3
 
     sum = 0
     count = 0
@@ -71,25 +84,21 @@ k_Percentiles = function() return(1:99)
 #' @param y_pred: Expected values.
 #' @return QS for k_Percentiles.
 k_QS = function(y_true, y_pred) {
-    percentiles = k_Percentiles()
-    shape = k_int_shape(y_pred)
-    samples = 1:Limit(sum(shape[[1]]), min=1)
-    steps = 1:Limit(sum(shape[[2]]), min=1)
-    members = 1:Limit(sum(shape[[3]])/Count(percentiles), min=1)
+    GetY = function(percentiles) return(k_repeat_elements(y_true, Count(percentiles), 3))
+    GetQ = function(percentiles) {
+        shape = k_Shape(y_true)
 
-    sum = 0
-    count = 0
-    for(sample in samples) {
-        for(step in steps) {
-            for(q in percentiles/100) {
-                yq = y_pred %>% k_Select(sample,step,(members-1)*Count(percentiles)+q)
-                sum = sum + k_mean(k_maximum((1-q)*(yq-y_true), q*(y_true-yq)))
-                count = count + 1
-            }
+        q = list()
+        for(i in 1:Count(percentiles)) {
+            q[[i]] = k_constant(percentiles[i]/100, shape = shape)
         }
+        
+        return(k_concatenate(q))
     }
+    GetQS = function(y, q, yq) return(return(k_mean(k_maximum((1-q)*(yq-y), q*(y-yq)))))
 
-    return(sum/count)
+    p = k_Percentiles()
+    return(GetQS(GetY(p), GetQ(p), y_pred))
 }
 
 #' k_L1L2: keras L1 and/or L2 regularizer.
