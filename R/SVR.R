@@ -15,21 +15,25 @@
 #' @param gamma [0, infinity]: Parameter for RBF kernel controls the shape of the separating hyperplanes as follows:
 #' 1) Small gamma leads to a Gaussian function with a large variance (margins) and may cause underfitting,
 #' 2) Large gamma leads to a Gaussian function with a small variance (margins) and may cause overfitting.
+#' @param cost (0, infinity]: Parameter C for SVR penalizes errors and controls the complexity of SVR as follows:
+#' 1) Small cost leads to large margins around hyperplanes and may cause underfitting,
+#' 2) Large cost leads to small margins around hyperplanes and may cause overfitting.
 #' @param tolerance (0, 1): Convergence tolerance controls the search for an optimal solution (hyperplanes) as follows:
 #' 1) Small tolerance increases difficulty in finding an optimal solution and may cause overfitting,
 #' 2) Large tolerance decreases difficulty in finding an optimal solution and may cause underfitting.
 #' @return Trained SVR model.
-TrainSVR = function(x, y, horizon, lookback = 2*horizon, nu = 0.01, gamma = 0.001, tolerance = 0.01) {
+TrainSVR = function(x, y, horizon, lookback = 2*horizon, nu = 0.01, gamma = 0.001, cost = 1, tolerance = 0.01) {
     LimitParams = function() {
         nu <<- Limit(nu, 0.001, 1)
         gamma <<- Limit(gamma, min = 0)
+        cost <<- Limit(cost, min = 0.001)
         tolerance <<- Limit(tolerance, 0.001, 0.999)
     }
     Train = function() {
         train = Tensor(x, y, horizon, lookback, "rec")
         input = as.matrix(as.data.frame(train$input))
         output = as.matrix(as.data.frame(train$output))
-        model = svm(x = input, y = output, type = "nu-regression", nu = nu, gamma = gamma, tolerance = tolerance, cross = 10)
+        model = svm(x = input, y = output, type = "nu-regression", nu = nu, gamma = gamma, cost = cost, tolerance = tolerance, cross = 10)
         return(model)
     }
 
@@ -70,7 +74,6 @@ TestSVR = function(model, x, y, horizon, lookback) {
 SaveSVR = function(model, folder, file) {
     Save = function() {
         path = GetPath(folder, file, 'svr')
-        dir.create(dirname(path))
         list(model = model) %>% saveRDS(path)
     }
 
@@ -84,6 +87,7 @@ SaveSVR = function(model, folder, file) {
 LoadSVR = function(folder, file) {
     Load = function() {
         path = GetPath(folder, file, 'svr')
+        dir.create(dirname(path))
         return(readRDS(path)$model)
     }
 
