@@ -284,7 +284,7 @@ ForecastTest = function(type = 'DCL',
                         external.population = 10,
                         external.generations = 10,
                         external.optparam = list(),
-                        rep = 25,
+                        rep = 200,
                         cooldown = 30,
                         verbose = FALSE,
                         folder = NULL,
@@ -459,7 +459,7 @@ ForecastTest = function(type = 'DCL',
             return(error)
         }
         EvaluateSVR = function(args) {
-            names(args) = c("nu", "gamma", "cost", "tolerance")
+            names(args) = c("nu", "gamma", "tolerance")
             args = as.list(args)
             model = TrainSVR(set$train$x,
                              set$train$y,
@@ -467,15 +467,14 @@ ForecastTest = function(type = 'DCL',
                              lookback,
                              args$nu,
                              args$gamma,
-                             args$cost,
                              args$tolerance)
             return(model %>% Evaluate(args))
         }
         OptimizeSVR = function() {
             # nu, gamma, cost, tolerance:
             Optimize(EvaluateSVR,
-                     c(0, 0, 0.5, 0),
-                     c(0.1, 0.1, 1, 0.1),
+                     rep(0, 3),
+                     rep(0.1, 3),
                      external.optimizer,
                      external.population,
                      external.generations,

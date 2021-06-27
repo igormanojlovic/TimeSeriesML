@@ -193,7 +193,7 @@ TrainDNN = function(model,
 #' 4) "DeepAR": Deep Auto-Regression (DeepAR)
 #' @param rep: The number of times to repeat tests (DeepAR-specific).
 #' @return Y forecast.
-TestDNN = function(model, x, y, horizon, lookback, type = "DCL", rep = 25) {
+TestDNN = function(model, x, y, horizon, lookback, type = "DCL", rep = 200) {
     if (type == "DeepAR") return(model %>% g_Test(colnames(y), tail(x, horizon), horizon, rep))
 
     t = Tensor(x, y, horizon, lookback, "MIMO")

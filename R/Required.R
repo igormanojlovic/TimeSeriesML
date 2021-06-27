@@ -45,16 +45,61 @@ Setup = function() {
                      "verification",
                      "predictionInterval",
                      "metaheuristicOpt")
+        SetupGluonTS = function(py.version, cuda.version) {
+            Sys.setenv(R_REMOTES_NO_ERRORS_FROM_WARNINGS="true")
+            devtools::install_github("business-science/modeltime.gluonts", force = TRUE)
+            Sys.setenv(R_REMOTES_NO_ERRORS_FROM_WARNINGS="false")
+
+            install.packages("https://s3.ca-central-1.amazonaws.com/jeremiedb/share/mxnet/GPU/mxnet.zip", repos = NULL)
+
+            mx = paste("mxnet-cu", gsub("[.]", "", cuda.version), sep="")
+            reticulate::py_install(
+                envname  = "r-gluonts",
+                python_version = py.version,
+                packages = c(mx, "gluonts", "pandas", "numpy", "pathlib"),
+                method = "conda",
+                pip = TRUE
+            )
+
+            modeltime.gluonts::install_gluonts()
+        }
+
         note.tf = "
 =============================== IMPORTANT ===============================
-Look for tensorflow-cuDNN-CUDA compatibility at https://www.tensorflow.org/install/source#gpu
+TensorFlow and Keras require:
+1) Pyhon,
+2) Miniconda,
+3) CUDA and cuDNN for NVIDIA GPU.
+
+Look for TensorFlow-cuDNN-CUDA compatibility at:
+https://www.tensorflow.org/install/source#gpu
+
 In case of ModuleNotFoundError: No module named 'rpytools':
-1) Try copying rpytools folder
+1) Copy rpytools folder
    from <user>\\Documents\\R\\win-library\\<version>\\reticulate\\python
    to <user>\\AppData\\Local\\r-miniconda\\envs\\r-reticulate
-2) Try calling
+2) Call:
    tensorflow::install_tensorflow()
    keras::install_keras()
+========================================================================="
+
+        note.gluonts = "
+=============================== IMPORTANT ===============================
+GluonTS requires:
+1) Pyhon,
+2) Miniconda,
+3) Microsoft Visual C++ 14.0,
+4) CUDA and cuDNN for NVIDIA GPU.
+
+Installing GluonTS library will enable the usage of DeepAR. However, the 
+installation will also add r-gluonts enviroment to r-miniconda. This new
+enviroment will then be used instead of r-reticulate, which will disable
+tensorflow and keras. If you later wish to restore them, you may need to
+delete '<user>\\Documents\\R' and '<user>\\AppData\\Local\\r-miniconda',
+and then renstall R, Python, Miniconda and all the R libraries.
+
+In case of error in pkg.env$gluonts$distribution$student_t$StudentTOutput(),
+try calling modeltime.gluonts::install_gluonts()
 ========================================================================="
 
         for (package in packages) {
@@ -66,33 +111,19 @@ In case of ModuleNotFoundError: No module named 'rpytools':
                 } else if (package == "tensorflow") {
                     write(note.tf, stdout())
                     devtools::install_github("rstudio/tensorflow", force = TRUE)
-                    tensorflow::install_tensorflow(version = "2.3.0-gpu")
+                    tensorflow::install_tensorflow(version = "gpu")
                 } else if (package == "keras") {
                     write(note.tf, stdout())
                     devtools::install_github("rstudio/keras", force = TRUE)
                     keras::install_keras()
                 } else if (package == "modeltime.gluonts") {
-                        sure = menu(c("Yes", "No"), title="Are you sure you want to install GluonTS and switch to r-gluonts enviroment?")
-                        if (sure == 1) {
-                            Sys.setenv(R_REMOTES_NO_ERRORS_FROM_WARNINGS="true")
-                            devtools::install_github("business-science/modeltime.gluonts", force = TRUE)
-                            Sys.setenv(R_REMOTES_NO_ERRORS_FROM_WARNINGS="false")
-                            
-                            py = readline("Please enter your Python version:")
-                            cuda = readline("Please enter your CUDA version:")
-                            mx = paste("mxnet-cu", gsub("[.]", "", cuda), sep="")
-                            install.packages("https://s3.ca-central-1.amazonaws.com/jeremiedb/share/mxnet/GPU/mxnet.zip", repos = NULL)
-                            reticulate::py_install(
-                                envname  = "r-gluonts",
-                                python_version = py,
-                                packages = c(mx, "gluonts", "pandas", "numpy", "pathlib"),
-                                method = "conda",
-                                pip = TRUE
-                            )
-
-                            modeltime.gluonts::install_gluonts() # Microsoft Visual C++ 14.0 is required. Get it with "Build Tools for Visual Studio": https://visualstudio.microsoft.com/downloads/
-                            modeltime.gluonts::install_gluonts() # Avoiding "Error in pkg.env$gluonts$distribution$student_t$StudentTOutput() : attempt to apply non-function".
-                        }
+                    write(note.gluonts, stdout())
+                    sure = menu(c("Yes", "No"), title="Are you sure you want to install GluonTS and switch to r-gluonts enviroment?")
+                    if (sure == 1) {
+                        py = readline("Please enter your Python version:")
+                        cuda = readline("Please enter your CUDA version:")
+                        SetupGluonTS(py, cuda)
+                    }
                 }
 
                 library(package, character.only = TRUE, quietly = TRUE, warn.conflicts = FALSE)
